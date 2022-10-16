@@ -26,18 +26,22 @@ class ViewController: UIViewController {
         
         passwordTextField
             .myTextPublisher
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main) //works with other threads
             .assign(to: \.passwordInput, on: viewModel)
             .store(in: &mySubscription)// to manage the memory
         
         passwordConfirmTextField
             .myTextPublisher
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .assign(to: \.passwordConfirmInput, on: viewModel)
             .store(in: &mySubscription)
+        
+        viewModel.isMatchPasswordInput
+            .print()
+            .receive(on: RunLoop.main)
+            .assign(to: \.isValid, on: myBtn)
+            .store(in: &mySubscription)
     }
-
-
 }
 
 extension UITextField {
@@ -47,5 +51,17 @@ extension UITextField {
             .map{ $0.text ?? ""}
             .print()
             .eraseToAnyPublisher()
+    }
+}
+
+extension UIButton {
+    var isValid: Bool {
+        get {
+            backgroundColor == .yellow
+        }
+        set {
+            backgroundColor = newValue ? .yellow : .lightGray
+            isEnabled = newValue
+        }
     }
 }
